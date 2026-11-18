@@ -212,9 +212,9 @@ public partial class Form1 : Form
             return;
         }
 
-        if (string.IsNullOrEmpty(user))
+        if (!UsernameRules.TryValidate(user, out string usernameError))
         {
-            MessageBox.Show("Lütfen bir kullanıcı adı giriniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(usernameError, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 

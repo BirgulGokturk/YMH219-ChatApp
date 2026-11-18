@@ -130,7 +130,7 @@ namespace YMH219_ChatApp.Network
                 }
 
                 var joinMsg = ChatMessage.FromJson(firstLine);
-                string username = joinMsg?.Sender ?? $"Kullanıcı_{Random.Shared.Next(1000, 9999)}";
+                string username = UsernameRules.Normalize(joinMsg?.Sender);
 
                 // Kullanıcı adı çakışma kontrolü
                 lock (_lock)
@@ -169,10 +169,26 @@ namespace YMH219_ChatApp.Network
                     var incoming = ChatMessage.FromJson(line);
                     if (incoming == null) continue;
 
+                    // İstemciler yalnızca sohbet ve özel mesaj gönderebilir. Join, Leave, UserList ve
+                    // System mesajlarını yalnızca sunucu üretir; aksi halde bir istemci sahte
+                    // kullanıcı listesi veya sistem duyurusu yayınlayabilirdi.
+                    if (incoming.Type != MessageType.Chat && incoming.Type != MessageType.Private) continue;
+                    if (string.IsNullOrWhiteSpace(incoming.Content)) continue;
+
+                    // Alıcısı belirtilmemiş özel mesaj normal oda mesajı olarak işlenir
+                    if (string.IsNullOrWhiteSpace(incoming.Recipient))
+                    {
+                        incoming.Type = MessageType.Chat;
+                    }
+                    if (incoming.Type == MessageType.Chat)
+                    {
+                        incoming.Recipient = null;
+                    }
+
                     incoming.Sender = session.Info.Username; // Göndereni garanti et
                     MessageReceived?.Invoke(incoming);
 
-                    if (incoming.Type == MessageType.Private && !string.IsNullOrWhiteSpace(incoming.Recipient))
+                    if (incoming.Type == MessageType.Private)
                     {
                         // Özel mesaj yönlendirme
                         await SendPrivateMessageAsync(incoming);
