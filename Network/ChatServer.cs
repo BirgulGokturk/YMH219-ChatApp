@@ -26,32 +26,48 @@ namespace YMH219_ChatApp.Network
 
         /// <summary>
         /// Sunucuyu belirtilen portta dinlemeye başlatır.
+        /// Port kullanımdaysa veya açılamıyorsa SocketException fırlatır; böylece arayüz hatayı
+        /// yakalayıp kullanıcıya gösterebilir. Yeni bağlantıları kabul eden döngü arka planda çalışır.
         /// </summary>
-        public async Task StartAsync(int port)
+        public void Start(int port)
         {
             if (IsRunning) return;
 
+            var listener = new TcpListener(IPAddress.Any, port);
+            listener.Start(); // Port doluysa hata burada oluşur ve çağıran koda iletilir
+
             Port = port;
+            _listener = listener;
             _cts = new CancellationTokenSource();
-            _listener = new TcpListener(IPAddress.Any, port);
-            _listener.Start();
             IsRunning = true;
 
             StateChanged?.Invoke(true);
             ServerLog?.Invoke($"[SUNUCU] Dinleme başlatıldı. Port: {port}");
 
+            _ = AcceptClientsAsync(listener, _cts.Token);
+        }
+
+        /// <summary>
+        /// Yeni istemci bağlantılarını sürekli kabul eden arka plan döngüsü.
+        /// </summary>
+        private async Task AcceptClientsAsync(TcpListener listener, CancellationToken token)
+        {
             try
             {
-                while (!_cts.Token.IsCancellationRequested)
+                while (!token.IsCancellationRequested)
                 {
-                    TcpClient tcpClient = await _listener.AcceptTcpClientAsync(_cts.Token);
-                    _ = HandleIncomingClientAsync(tcpClient, _cts.Token);
+                    TcpClient tcpClient = await listener.AcceptTcpClientAsync(token);
+                    _ = HandleIncomingClientAsync(tcpClient, token);
                 }
             }
             catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                ServerLog?.Invoke($"[HATA] Sunucu dinleme hatası: {ex.Message}");
+                // Sunucu bilerek durdurulduysa oluşan hata beklenen bir durumdur
+                if (!token.IsCancellationRequested)
+                {
+                    ServerLog?.Invoke($"[HATA] Sunucu dinleme hatası: {ex.Message}");
+                }
             }
             finally
             {
@@ -64,25 +80,31 @@ namespace YMH219_ChatApp.Network
         /// </summary>
         public void Stop()
         {
-            if (!IsRunning) return;
+            List<ConnectedClientSession> clientsToClose;
 
-            IsRunning = false;
-            _cts?.Cancel();
-
+            // Stop hem arayüzden hem de kabul döngüsünün finally bloğundan çağrılabilir;
+            // kilit sayesinde durdurma işlemi yalnızca bir kez yapılır.
             lock (_lock)
             {
-                foreach (var client in _clients.ToList())
-                {
-                    client.Dispose();
-                }
+                if (!IsRunning) return;
+                IsRunning = false;
+
+                clientsToClose = _clients.ToList();
                 _clients.Clear();
             }
+
+            _cts?.Cancel();
 
             try
             {
                 _listener?.Stop();
             }
             catch { }
+
+            foreach (var client in clientsToClose)
+            {
+                client.Dispose();
+            }
 
             StateChanged?.Invoke(false);
             ServerLog?.Invoke("[SUNUCU] Sunucu durduruldu.");

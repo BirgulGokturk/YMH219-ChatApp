@@ -1,3 +1,4 @@
+using System.Net.Sockets;
 using YMH219_ChatApp.Models;
 using YMH219_ChatApp.Network;
 using YMH219_ChatApp.Services;
@@ -72,7 +73,7 @@ public partial class Form1 : Form
         };
     }
 
-    private async void BtnStartServer_Click(object? sender, EventArgs e)
+    private void BtnStartServer_Click(object? sender, EventArgs e)
     {
         if (!int.TryParse(txtListenPort.Text.Trim(), out int port) || port < 1024 || port > 65535)
         {
@@ -82,7 +83,14 @@ public partial class Form1 : Form
 
         try
         {
-            _ = _server.StartAsync(port);
+            _server.Start(port);
+        }
+        catch (SocketException ex) when (ex.SocketErrorCode == SocketError.AddressAlreadyInUse)
+        {
+            MessageBox.Show(
+                $"Sunucu başlatılamadı: {port} numaralı port başka bir uygulama tarafından kullanılıyor.\n\n" +
+                "Başka bir sunucu penceresi açık olabilir. Farklı bir port deneyin.",
+                "Port Kullanımda", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         catch (Exception ex)
         {
