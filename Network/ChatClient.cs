@@ -14,6 +14,10 @@ namespace YMH219_ChatApp.Network
         private StreamWriter? _writer;
         private CancellationTokenSource? _cts;
 
+        // Kullanıcı art arda hızlıca Enter'a basarsa iki gönderim aynı anda StreamWriter'a
+        // yazmaya çalışabilir; bu kilit gönderimleri sıraya alır.
+        private readonly SemaphoreSlim _sendLock = new(1, 1);
+
         public bool IsConnected => _tcpClient != null && _tcpClient.Connected;
         public string Username { get; private set; } = string.Empty;
 
@@ -109,6 +113,7 @@ namespace YMH219_ChatApp.Network
                 return false;
             }
 
+            await _sendLock.WaitAsync();
             try
             {
                 var type = string.IsNullOrWhiteSpace(recipient) ? MessageType.Chat : MessageType.Private;
@@ -121,6 +126,10 @@ namespace YMH219_ChatApp.Network
                 ErrorOccurred?.Invoke($"Mesaj gönderilirken hata oluştu: {ex.Message}");
                 Disconnect();
                 return false;
+            }
+            finally
+            {
+                _sendLock.Release();
             }
         }
 

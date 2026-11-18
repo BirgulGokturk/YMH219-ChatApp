@@ -225,7 +225,7 @@ namespace YMH219_ChatApp.Network
             {
                 try
                 {
-                    await client.Writer.WriteLineAsync(json);
+                    await client.SendAsync(json);
                 }
                 catch
                 {
@@ -251,16 +251,16 @@ namespace YMH219_ChatApp.Network
 
             if (targetSession != null)
             {
-                try { await targetSession.Writer.WriteLineAsync(json); } catch { }
+                try { await targetSession.SendAsync(json); } catch { }
                 if (senderSession != null && senderSession != targetSession)
                 {
-                    try { await senderSession.Writer.WriteLineAsync(json); } catch { }
+                    try { await senderSession.SendAsync(json); } catch { }
                 }
             }
             else if (senderSession != null)
             {
                 var errorMsg = new ChatMessage("Sunucu", $"Hedef kullanıcı bulunamadı: {message.Recipient}", MessageType.System);
-                try { await senderSession.Writer.WriteLineAsync(errorMsg.ToJson()); } catch { }
+                try { await senderSession.SendAsync(errorMsg.ToJson()); } catch { }
             }
         }
 
@@ -295,20 +295,42 @@ namespace YMH219_ChatApp.Network
         {
             public TcpClient Client { get; }
             public StreamReader Reader { get; }
-            public StreamWriter Writer { get; }
             public ClientInfo Info { get; }
+
+            private readonly StreamWriter _writer;
+
+            // StreamWriter aynı anda birden fazla görev (Task) tarafından kullanılamaz.
+            // Farklı istemcilerin mesajları aynı anda yayınlanabildiği için yazma işlemleri
+            // bu kilit ile sıraya alınır; aksi halde mesajlar sessizce kaybolabilir.
+            private readonly SemaphoreSlim _writeLock = new(1, 1);
 
             public ConnectedClientSession(TcpClient client, StreamReader reader, StreamWriter writer, ClientInfo info)
             {
                 Client = client;
                 Reader = reader;
-                Writer = writer;
+                _writer = writer;
                 Info = info;
+            }
+
+            /// <summary>
+            /// Bu istemciye tek satırlık JSON paketini sırayla (thread-safe) gönderir.
+            /// </summary>
+            public async Task SendAsync(string json)
+            {
+                await _writeLock.WaitAsync();
+                try
+                {
+                    await _writer.WriteLineAsync(json);
+                }
+                finally
+                {
+                    _writeLock.Release();
+                }
             }
 
             public void Dispose()
             {
-                try { Writer.Dispose(); } catch { }
+                try { _writer.Dispose(); } catch { }
                 try { Reader.Dispose(); } catch { }
                 try { Client.Dispose(); } catch { }
             }
