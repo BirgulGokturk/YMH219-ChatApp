@@ -131,8 +131,10 @@ namespace YMH219_ChatApp.Network
                 ClientConnected?.Invoke(session.Info);
                 ServerLog?.Invoke($"[BAĞLANTI] {session.Info.Username} bağlandı ({remoteEndpoint})");
 
-                // Odaya katılım mesajını herkese bildir
-                var welcomeMsg = new ChatMessage("Sunucu", $"{session.Info.Username} odaya katıldı.", MessageType.Join);
+                // Odaya katılım mesajını herkese bildir.
+                // Gönderen alanı katılan kullanıcının adı olmalı; istemci Join/Leave mesajlarını
+                // "{Sender} sohbete katıldı." biçiminde gösterir.
+                var welcomeMsg = new ChatMessage(session.Info.Username, $"{session.Info.Username} odaya katıldı.", MessageType.Join);
                 await BroadcastAsync(welcomeMsg);
                 await BroadcastUserListAsync();
 
@@ -177,7 +179,7 @@ namespace YMH219_ChatApp.Network
                     ServerLog?.Invoke($"[AYRILMA] {session.Info.Username} ayrıldı.");
                     session.Dispose();
 
-                    var leaveMsg = new ChatMessage("Sunucu", $"{session.Info.Username} sohbetten ayrıldı.", MessageType.Leave);
+                    var leaveMsg = new ChatMessage(session.Info.Username, $"{session.Info.Username} sohbetten ayrıldı.", MessageType.Leave);
                     _ = BroadcastAsync(leaveMsg);
                     _ = BroadcastUserListAsync();
                 }
