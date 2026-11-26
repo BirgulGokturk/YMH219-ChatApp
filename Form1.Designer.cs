@@ -10,6 +10,7 @@ partial class Form1
 
     // --- İstemci Bileşenleri ---
     private System.Windows.Forms.Panel pnlClientTop;
+    private System.Windows.Forms.FlowLayoutPanel flowClientTop;
     private System.Windows.Forms.Label lblIp;
     private System.Windows.Forms.TextBox txtServerIp;
     private System.Windows.Forms.Label lblPort;
@@ -33,6 +34,7 @@ partial class Form1
 
     // --- Sunucu Bileşenleri ---
     private System.Windows.Forms.Panel pnlServerTop;
+    private System.Windows.Forms.FlowLayoutPanel flowServerTop;
     private System.Windows.Forms.Label lblServerPort;
     private System.Windows.Forms.TextBox txtListenPort;
     private System.Windows.Forms.Button btnStartServer;
@@ -71,6 +73,7 @@ partial class Form1
 
         // İstemci bileşenleri
         pnlClientTop = new System.Windows.Forms.Panel();
+        flowClientTop = new System.Windows.Forms.FlowLayoutPanel();
         lblIp = new System.Windows.Forms.Label();
         txtServerIp = new System.Windows.Forms.TextBox();
         lblPort = new System.Windows.Forms.Label();
@@ -94,6 +97,7 @@ partial class Form1
 
         // Sunucu bileşenleri
         pnlServerTop = new System.Windows.Forms.Panel();
+        flowServerTop = new System.Windows.Forms.FlowLayoutPanel();
         lblServerPort = new System.Windows.Forms.Label();
         txtListenPort = new System.Windows.Forms.TextBox();
         btnStartServer = new System.Windows.Forms.Button();
@@ -116,6 +120,7 @@ partial class Form1
         tabControl.SuspendLayout();
         tabClient.SuspendLayout();
         pnlClientTop.SuspendLayout();
+        flowClientTop.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)splitClient).BeginInit();
         splitClient.Panel1.SuspendLayout();
         splitClient.Panel2.SuspendLayout();
@@ -125,6 +130,7 @@ partial class Form1
 
         tabServer.SuspendLayout();
         pnlServerTop.SuspendLayout();
+        flowServerTop.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)splitServer).BeginInit();
         splitServer.Panel1.SuspendLayout();
         splitServer.Panel2.SuspendLayout();
@@ -163,29 +169,36 @@ partial class Form1
         // pnlClientTop
         pnlClientTop.BackColor = Color.FromArgb(245, 248, 250);
         pnlClientTop.BorderStyle = BorderStyle.FixedSingle;
-        pnlClientTop.Controls.Add(lblIp);
-        pnlClientTop.Controls.Add(txtServerIp);
-        pnlClientTop.Controls.Add(lblPort);
-        pnlClientTop.Controls.Add(txtServerPort);
-        pnlClientTop.Controls.Add(lblUser);
-        pnlClientTop.Controls.Add(txtUsername);
-        pnlClientTop.Controls.Add(btnConnect);
-        pnlClientTop.Controls.Add(btnDisconnect);
+        // Kontroller FlowLayoutPanel içinde soldan sağa dizilir, durum etiketi sağa yaslanır; ekran ölçeği büyüse de yazılar kesilmez
+        pnlClientTop.Controls.Add(flowClientTop);
         pnlClientTop.Controls.Add(lblClientStatus);
         pnlClientTop.Dock = DockStyle.Top;
         pnlClientTop.Location = new Point(3, 3);
         pnlClientTop.Name = "pnlClientTop";
+        pnlClientTop.Padding = new Padding(8, 9, 8, 6);
+
+        flowClientTop.Controls.Add(lblIp);
+        flowClientTop.Controls.Add(txtServerIp);
+        flowClientTop.Controls.Add(lblPort);
+        flowClientTop.Controls.Add(txtServerPort);
+        flowClientTop.Controls.Add(lblUser);
+        flowClientTop.Controls.Add(txtUsername);
+        flowClientTop.Controls.Add(btnConnect);
+        flowClientTop.Controls.Add(btnDisconnect);
+        flowClientTop.Dock = DockStyle.Fill;
+        flowClientTop.Name = "flowClientTop";
+        flowClientTop.WrapContents = false;
         pnlClientTop.Size = new Size(870, 48);
         pnlClientTop.TabIndex = 0;
 
         // lblIp & txtServerIp
         lblIp.AutoSize = true;
         lblIp.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-        lblIp.Location = new Point(8, 15);
+        lblIp.Margin = new Padding(0, 4, 4, 0);
         lblIp.Name = "lblIp";
         lblIp.Size = new Size(65, 15);
         lblIp.Text = "Sunucu IP:";
-        txtServerIp.Location = new Point(75, 11);
+        txtServerIp.Margin = new Padding(0, 0, 12, 0);
         txtServerIp.Name = "txtServerIp";
         txtServerIp.Size = new Size(95, 24);
         txtServerIp.Text = "127.0.0.1";
@@ -193,11 +206,11 @@ partial class Form1
         // lblPort & txtServerPort
         lblPort.AutoSize = true;
         lblPort.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-        lblPort.Location = new Point(178, 15);
+        lblPort.Margin = new Padding(0, 4, 4, 0);
         lblPort.Name = "lblPort";
         lblPort.Size = new Size(34, 15);
         lblPort.Text = "Port:";
-        txtServerPort.Location = new Point(215, 11);
+        txtServerPort.Margin = new Padding(0, 0, 12, 0);
         txtServerPort.Name = "txtServerPort";
         txtServerPort.Size = new Size(55, 24);
         txtServerPort.Text = "8888";
@@ -205,11 +218,11 @@ partial class Form1
         // lblUser & txtUsername
         lblUser.AutoSize = true;
         lblUser.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-        lblUser.Location = new Point(280, 15);
+        lblUser.Margin = new Padding(0, 4, 4, 0);
         lblUser.Name = "lblUser";
         lblUser.Size = new Size(76, 15);
         lblUser.Text = "Kullanıcı Adı:";
-        txtUsername.Location = new Point(360, 11);
+        txtUsername.Margin = new Padding(0, 0, 12, 0);
         txtUsername.Name = "txtUsername";
         txtUsername.Size = new Size(110, 24);
         txtUsername.Text = "Birgül";
@@ -219,7 +232,8 @@ partial class Form1
         btnConnect.FlatStyle = FlatStyle.Flat;
         btnConnect.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
         btnConnect.ForeColor = Color.White;
-        btnConnect.Location = new Point(480, 9);
+        btnConnect.AutoSize = true;
+        btnConnect.Margin = new Padding(0, -2, 6, 0);
         btnConnect.Name = "btnConnect";
         btnConnect.Size = new Size(90, 28);
         btnConnect.Text = "Bağlan";
@@ -231,7 +245,8 @@ partial class Form1
         btnDisconnect.FlatStyle = FlatStyle.Flat;
         btnDisconnect.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
         btnDisconnect.ForeColor = Color.White;
-        btnDisconnect.Location = new Point(576, 9);
+        btnDisconnect.AutoSize = true;
+        btnDisconnect.Margin = new Padding(0, -2, 6, 0);
         btnDisconnect.Name = "btnDisconnect";
         btnDisconnect.Size = new Size(100, 28);
         btnDisconnect.Text = "Bağlantıyı Kes";
@@ -239,14 +254,14 @@ partial class Form1
         btnDisconnect.Click += BtnDisconnect_Click;
 
         // lblClientStatus
-        lblClientStatus.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        lblClientStatus.AutoEllipsis = true;
+        lblClientStatus.Dock = DockStyle.Right;
         lblClientStatus.BackColor = Color.FromArgb(235, 235, 235);
         lblClientStatus.BorderStyle = BorderStyle.FixedSingle;
         lblClientStatus.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
         lblClientStatus.ForeColor = Color.DimGray;
-        lblClientStatus.Location = new Point(685, 9);
         lblClientStatus.Name = "lblClientStatus";
-        lblClientStatus.Size = new Size(175, 28);
+        lblClientStatus.Size = new Size(130, 28);
         lblClientStatus.Text = "○ BAĞLI DEĞİL";
         lblClientStatus.TextAlign = ContentAlignment.MiddleCenter;
 
@@ -357,23 +372,30 @@ partial class Form1
         // pnlServerTop
         pnlServerTop.BackColor = Color.FromArgb(245, 248, 250);
         pnlServerTop.BorderStyle = BorderStyle.FixedSingle;
-        pnlServerTop.Controls.Add(lblServerPort);
-        pnlServerTop.Controls.Add(txtListenPort);
-        pnlServerTop.Controls.Add(btnStartServer);
-        pnlServerTop.Controls.Add(btnStopServer);
+        // Kontroller FlowLayoutPanel içinde soldan sağa dizilir, durum etiketi sağa yaslanır; ekran ölçeği büyüse de yazılar kesilmez
+        pnlServerTop.Controls.Add(flowServerTop);
         pnlServerTop.Controls.Add(lblServerStatus);
         pnlServerTop.Dock = DockStyle.Top;
         pnlServerTop.Location = new Point(3, 3);
         pnlServerTop.Name = "pnlServerTop";
+        pnlServerTop.Padding = new Padding(8, 9, 8, 6);
+
+        flowServerTop.Controls.Add(lblServerPort);
+        flowServerTop.Controls.Add(txtListenPort);
+        flowServerTop.Controls.Add(btnStartServer);
+        flowServerTop.Controls.Add(btnStopServer);
+        flowServerTop.Dock = DockStyle.Fill;
+        flowServerTop.Name = "flowServerTop";
+        flowServerTop.WrapContents = false;
         pnlServerTop.Size = new Size(870, 48);
 
         lblServerPort.AutoSize = true;
         lblServerPort.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-        lblServerPort.Location = new Point(12, 16);
+        lblServerPort.Margin = new Padding(0, 4, 4, 0);
         lblServerPort.Name = "lblServerPort";
         lblServerPort.Size = new Size(83, 15);
         lblServerPort.Text = "Dinleme Portu:";
-        txtListenPort.Location = new Point(100, 11);
+        txtListenPort.Margin = new Padding(0, 0, 12, 0);
         txtListenPort.Name = "txtListenPort";
         txtListenPort.Size = new Size(70, 24);
         txtListenPort.Text = "8888";
@@ -382,7 +404,8 @@ partial class Form1
         btnStartServer.FlatStyle = FlatStyle.Flat;
         btnStartServer.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
         btnStartServer.ForeColor = Color.White;
-        btnStartServer.Location = new Point(185, 9);
+        btnStartServer.AutoSize = true;
+        btnStartServer.Margin = new Padding(0, -2, 6, 0);
         btnStartServer.Name = "btnStartServer";
         btnStartServer.Size = new Size(130, 28);
         btnStartServer.Text = "Sunucuyu Başlat";
@@ -394,19 +417,20 @@ partial class Form1
         btnStopServer.FlatStyle = FlatStyle.Flat;
         btnStopServer.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
         btnStopServer.ForeColor = Color.White;
-        btnStopServer.Location = new Point(325, 9);
+        btnStopServer.AutoSize = true;
+        btnStopServer.Margin = new Padding(0, -2, 6, 0);
         btnStopServer.Name = "btnStopServer";
         btnStopServer.Size = new Size(130, 28);
         btnStopServer.Text = "Sunucuyu Durdur";
         btnStopServer.UseVisualStyleBackColor = false;
         btnStopServer.Click += BtnStopServer_Click;
 
-        lblServerStatus.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        lblServerStatus.AutoEllipsis = true;
+        lblServerStatus.Dock = DockStyle.Right;
         lblServerStatus.BackColor = Color.FromArgb(235, 235, 235);
         lblServerStatus.BorderStyle = BorderStyle.FixedSingle;
         lblServerStatus.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
         lblServerStatus.ForeColor = Color.DimGray;
-        lblServerStatus.Location = new Point(660, 9);
         lblServerStatus.Name = "lblServerStatus";
         lblServerStatus.Size = new Size(200, 28);
         lblServerStatus.Text = "○ SUNUCU KAPALI";
@@ -514,6 +538,8 @@ partial class Form1
 
         tabControl.ResumeLayout(false);
         tabClient.ResumeLayout(false);
+        flowClientTop.ResumeLayout(false);
+        flowClientTop.PerformLayout();
         pnlClientTop.ResumeLayout(false);
         pnlClientTop.PerformLayout();
         splitClient.Panel1.ResumeLayout(false);
@@ -525,6 +551,8 @@ partial class Form1
         pnlClientBottom.PerformLayout();
 
         tabServer.ResumeLayout(false);
+        flowServerTop.ResumeLayout(false);
+        flowServerTop.PerformLayout();
         pnlServerTop.ResumeLayout(false);
         pnlServerTop.PerformLayout();
         splitServer.Panel1.ResumeLayout(false);
